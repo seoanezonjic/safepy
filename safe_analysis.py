@@ -22,6 +22,8 @@ parser.add_argument('--show_significant_nodes', action='store_true',
 					help='Show significant nodes in attribute plots')
 parser.add_argument('--show_raw_data', action='store_true',
 					help='Show raw data in attribute plots')
+parser.add_argument('--not_domain_computation', action='store_true', default=False,
+					help='Show raw data in attribute plots')
 parser.add_argument('--attribute_names', nargs='*', default=[],
                     help='Attribute names space separated to be plotted')
 args = parser.parse_args()
@@ -30,7 +32,8 @@ sf = SAFE(path_to_ini_file=args.path_to_config)
 sf.load_network(network_file=args.path_to_network)
 
 if args.build_network_only:
-	sf.save_gpickle(args.output_path)
+	sf.save_network(output_file=args.output_path)
+	#sf.save_gpickle(args.output_path)
 else:
 	if not os.path.exists(args.output_path):
 		os.mkdir(args.output_path)
@@ -53,15 +56,15 @@ else:
 	########################################################################
 	### Combine the enrichment landscapes into a single composite map
 	########################################################################
-
-	sf.define_top_attributes()
-	sf.define_domains(attribute_distance_threshold = 0.65)
-	sf.trim_domains()
-	sf.plot_composite_network(
-		show_each_domain=True, 
-		show_domain_ids=True, 
-		save_fig=os.path.join(args.output_path,'plotComposite.pdf')
-	)
+	if not args.not_domain_computation:
+		sf.define_top_attributes()
+		sf.define_domains(attribute_distance_threshold = 0.65)
+		sf.trim_domains()
+		sf.plot_composite_network(
+			show_each_domain=True, 
+			show_domain_ids=True, 
+			save_fig=os.path.join(args.output_path,'plotComposite.pdf')
+		)
 
 	########################################################################
 	### Output text files

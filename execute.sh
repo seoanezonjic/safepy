@@ -13,8 +13,11 @@ time ./safe_analysis.py \
 # LOAD AND ANALYSE NETWORK
 time ./safe_analysis.py \
 	--path-to-network test.gpickle  \
-	--path-to-attributes ~pedro/test/safe/safe-data/attributes/go_bp_140819.txt.gz \
+	--path-to-attributes ~pedro/test/safe/safe-data/attributes/hoepfner_movva_2014_doxorubucin.txt \
 	--output-path results \
-	--threads 1 \
-	--attribute_names 'mitotic sister chromatid segregation' 'cell cycle checkpoint' \
+	--threads 2 \
+	--attribute_names 'Doxorubicin' \
 	--show_raw_data \
+	--not_domain_computation \
+#	--attribute_names 'mitotic sister chromatid segregation' 'cell cycle checkpoint' \
+#	--path-to-attributes ~pedro/test/safe/safe-data/attributes/go_bp_140819.txt.gz \
