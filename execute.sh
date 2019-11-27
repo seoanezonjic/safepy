@@ -4,6 +4,7 @@ module load pandoc/2.2.1
 export PATH=~pedro/.local/bin:$PATH
 source safepy_env/bin/activate
 
+export PYTHONPATH=./safepy/:$PYTHONPATH
 #CONVERT PLAIN DATA TO GRAPH OBJECT
 time ./safe_analysis.py \
 	--path-to-network ~pedro/test/safe/safe-data/networks/Costanzo_Science_2010_5col.txt \
