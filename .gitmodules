@@ -1,0 +1,3 @@
+[submodule "safepy"]
+	path = safepy
+	url = https://github.com/baryshnikova-lab/safepy.git
