@@ -3,7 +3,8 @@
 
 import argparse
 import os
-from safe import SAFE
+
+from safepy.safe import *
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Execute SAFE by commandline with input handling.')
@@ -44,33 +45,75 @@ if __name__ == '__main__':
 		sf.load_attributes(attribute_file=args.path_to_attributes)
 		sf.compute_pvalues(num_permutations=500, processes=args.threads)
 
-		########################################################################
-		### Show unitary attributes (all neighborhoods for one attribute)
-		########################################################################
-		sf.plot_sample_attributes(
-			attributes=args.attribute_names,
-			show_significant_nodes=args.show_significant_nodes,
-			show_raw_data=args.show_raw_data, 
-			save_fig=os.path.join(args.output_path,'attribute_plot.pdf')
-		)
-
-		########################################################################
-		### Combine the enrichment landscapes into a single composite map
-		########################################################################
+		# ########################################################################
+		# ### Show unitary attributes (all neighborhoods for one attribute)
+		# ########################################################################
+		# sf.plot_sample_attributes(
+		# 	attributes=args.attribute_names,
+		# 	show_significant_nodes=args.show_significant_nodes,
+		# 	show_raw_data=args.show_raw_data, 
+		# 	save_fig=os.path.join(args.output_path,'attribute_plot.pdf')
+		# )
+		# ########################################################################
+		# ### Combine the enrichment landscapes into a single composite map
+		# ########################################################################
 		if not args.not_domain_computation:
 			sf.define_top_attributes()
 			sf.define_domains(attribute_distance_threshold = 0.65)
 			sf.trim_domains()
-			sf.plot_composite_network(
-				show_each_domain=True, 
-				show_domain_ids=True, 
-				save_fig=os.path.join(args.output_path,'plotComposite.pdf')
-			)
+		# 	sf.plot_composite_network(
+		# 		show_each_domain=True, 
+		# 		show_domain_ids=True, 
+		# 		save_fig=os.path.join(args.output_path,'plotComposite.pdf')
+		# 	)
 
-		########################################################################
-		### Output text files
-		########################################################################
+		# ########################################################################
+		# ### Output text files
+		# ########################################################################
 
 		sf.print_output_files(output_dir=args.output_path)
 
 
+		nodes = list(nx.get_node_attributes(sf.graph, 'key').values())
+		nodes_len = len(nodes)
+		attribute_names = sf.attributes['name'].values
+		attr_thr = -np.log10(sf.enrichment_threshold)
+
+		if sf.node2domain is not None:
+			domains = sf.node2domain['primary_domain'].values
+			ness = sf.node2domain['primary_nes'].values
+			num_domains = sf.node2domain[sf.domains['id']].sum(axis=1).values
+
+		row = 0
+		f = open(os.path.join(args.output_path, 'neighborhoods.txt'), "w")
+		for neighborhood in sf.neighborhoods:
+			node_positions = [i for i in range(nodes_len) if neighborhood[i] > 0]
+			if len(node_positions) > 1: # Neighborhood must contain more than one member
+				nes = sf.nes[row]
+				significative_nes = nes > attr_thr
+				attr_names = attribute_names[significative_nes]
+				if len(attr_names) > 0: # Neighborhood must enrich in at least one term
+					names = [] #get gene ids
+					for node_position in node_positions:
+						names.append(nodes[node_position])
+					nes_scores = nes[significative_nes]
+					record = []
+					record.append(','.join(attr_names))
+					record.append(','.join([str(i) for i in nes_scores]))
+					if sf.node2domain is not None:
+						dom = domains[row]
+						if  dom == 0: # There is not domain for this neighborhood
+							dom = '-'
+							score = '-'
+							num ='-'
+						else:
+							dom = str(dom)
+							score = str(ness[row])
+							num = str(num_domains[row])
+						record.append(dom)
+						record.append(score)
+						record.append(num)
+					record.append(','.join(names))
+					f.write('\t'.join(record) + '\n')
+			row += 1
+		f.close()
