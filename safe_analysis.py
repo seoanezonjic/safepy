@@ -28,6 +28,9 @@ if __name__ == '__main__':
 						help='Show raw data in attribute plots')
 	parser.add_argument('--attribute_names', nargs='*', default=[],
 	                    help='Attribute names space separated to be plotted')
+	parser.add_argument('--gene_ids', nargs='*', default=[],
+	                    help='Gene ids space separated to be marked in plots')
+
 	args = parser.parse_args()
 
 	sf = SAFE(path_to_ini_file=args.path_to_config)
@@ -48,12 +51,13 @@ if __name__ == '__main__':
 		# ########################################################################
 		# ### Show unitary attributes (all neighborhoods for one attribute)
 		# ########################################################################
-		# sf.plot_sample_attributes(
-		# 	attributes=args.attribute_names,
-		# 	show_significant_nodes=args.show_significant_nodes,
-		# 	show_raw_data=args.show_raw_data, 
-		# 	save_fig=os.path.join(args.output_path,'attribute_plot.pdf')
-		# )
+		sf.plot_sample_attributes(
+			attributes=args.attribute_names,
+			show_significant_nodes=args.show_significant_nodes,
+			show_raw_data=args.show_raw_data, 
+			save_fig=os.path.join(args.output_path,'attribute_plot.pdf'),
+			labels=args.gene_ids
+		)
 		# ########################################################################
 		# ### Combine the enrichment landscapes into a single composite map
 		# ########################################################################
@@ -61,11 +65,12 @@ if __name__ == '__main__':
 			sf.define_top_attributes()
 			sf.define_domains(attribute_distance_threshold = 0.65)
 			sf.trim_domains()
-		# 	sf.plot_composite_network(
-		# 		show_each_domain=True, 
-		# 		show_domain_ids=True, 
-		# 		save_fig=os.path.join(args.output_path,'plotComposite.pdf')
-		# 	)
+			sf.plot_composite_network(
+				show_each_domain=True, 
+				show_domain_ids=True,
+				labels=args.gene_ids, 
+				save_fig=os.path.join(args.output_path,'plotComposite.pdf')
+			)
 
 		# ########################################################################
 		# ### Output text files
